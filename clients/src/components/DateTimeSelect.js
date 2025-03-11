@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import DatePicker from 'react-datepicker';
-import { api } from '../utils/api';
+import { getAvailability } from '../utils/api';
 import "react-datepicker/dist/react-datepicker.css";
 
 function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime, selectedLocation }) {
@@ -60,7 +60,7 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
   const loadAvailableTimes = useCallback(async (date) => {
     setLoading(true);
     try {
-      const response = await api.getAvailability(selectedLocation, date);
+      const response = await getAvailability(selectedLocation, date);
       console.log('Raw availability data:', response.data);
       
       // Skip the header row [0] and filter for the selected date, location and available slots

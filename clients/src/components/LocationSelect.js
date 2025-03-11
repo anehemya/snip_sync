@@ -1,5 +1,5 @@
 import React from 'react';
-import { api } from '../utils/api';
+import { getAvailability } from '../utils/api';
 
 function LocationSelect({ onNext, updateData, selectedLocation }) {
   const locations = [
@@ -15,8 +15,8 @@ function LocationSelect({ onNext, updateData, selectedLocation }) {
       console.log('Selected location:', location);
       
       // Get availability for this location
-      const availability = await api.getAvailability(location);
-      console.log('Received availability:', availability);
+      const response = await getAvailability(location);
+      console.log('Received availability:', response);
       
       // Update the appointment data with selected location
       if (typeof updateData === 'function') {
