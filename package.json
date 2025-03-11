@@ -2,7 +2,7 @@
   "name": "snip_sync",
   "version": "1.0.0",
   "scripts": {
-    "start": "node ./server/server.js",
+    "start": "NODE_OPTIONS='--openssl-legacy-provider' node ./server/server.js",
     "build": "cd clients && npm install && npm run build && ls dist"
   },
   "engines": {
