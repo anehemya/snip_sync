@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import DatePicker from 'react-datepicker';
 import { api } from '../utils/api';
 import "react-datepicker/dist/react-datepicker.css";
@@ -10,8 +10,8 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
   const [currentDate, setCurrentDate] = useState(selectedDate ? new Date(selectedDate) : new Date());
   const [nextAvailableDate, setNextAvailableDate] = useState(null);
 
-  // All possible time slots are defined in an array (9 AM to 10 PM, 15-min intervals)
-  const allTimeSlots = [
+  // Wrap allTimeSlots in useMemo to prevent unnecessary re-renders
+  const allTimeSlots = useMemo(() => [
     '9:00', '9:15', '9:30', '9:45',
     '10:00', '10:15', '10:30', '10:45',
     '11:00', '11:15', '11:30', '11:45',
@@ -26,31 +26,31 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
     '20:00', '20:15', '20:30', '20:45',
     '21:00', '21:15', '21:30', '21:45',
     '22:00'
-  ];
+  ], []); // Empty dependency array since this never changes
 
   // Add this function to convert 24h to 12h format
-  const convertTo12Hour = (time24) => {
-    const [hours, minutes] = time24.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
-  };
+  // const convertTo12Hour = (time24) => {
+  //   const [hours, minutes] = time24.split(':');
+  //   const hour = parseInt(hours);
+  //   const ampm = hour >= 12 ? 'PM' : 'AM';
+  //   const hour12 = hour % 12 || 12;
+  //   return `${hour12}:${minutes} ${ampm}`;
+  // };
 
-  // Add this function to convert 12h to 24h format
-  const convertTo24Hour = (time12) => {
-    const [time, modifier] = time12.split(' ');
-    let [hours, minutes] = time.split(':');
-    hours = parseInt(hours);
+  // // Add this function to convert 12h to 24h format
+  // const convertTo24Hour = (time12) => {
+  //   const [time, modifier] = time12.split(' ');
+  //   let [hours, minutes] = time.split(':');
+  //   hours = parseInt(hours);
     
-    if (hours === 12) {
-      hours = modifier === 'PM' ? 12 : 0;
-    } else {
-      hours = modifier === 'PM' ? hours + 12 : hours;
-    }
+  //   if (hours === 12) {
+  //     hours = modifier === 'PM' ? 12 : 0;
+  //   } else {
+  //     hours = modifier === 'PM' ? hours + 12 : hours;
+  //   }
     
-    return `${hours.toString().padStart(2, '0')}:${minutes}`;
-  };
+  //   return `${hours.toString().padStart(2, '0')}:${minutes}`;
+  // };
 
   const formatDate = (date) => {
     // Format date as YYYY-MM-DD to match Google Sheet format
@@ -115,9 +115,9 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
     onNext();
   };
 
-  const isTimeAvailable = (time) => {
-    return availableTimes.includes(time);
-  };
+  // const isTimeAvailable = (time) => {
+  //   return availableTimes.includes(time);
+  // };
 
   const formatDisplayTime = (time24) => {
     const [hours, minutes] = time24.split(':');
