@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import DatePicker from 'react-datepicker';
 import { api } from '../utils/api';
 import "react-datepicker/dist/react-datepicker.css";
@@ -52,18 +52,12 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
     return `${hours.toString().padStart(2, '0')}:${minutes}`;
   };
 
-  useEffect(() => {
-    if (currentDate) {
-      loadAvailableTimes(formatDate(currentDate));
-    }
-  }, [currentDate]);
-
   const formatDate = (date) => {
     // Format date as YYYY-MM-DD to match Google Sheet format
     return date.toISOString().split('T')[0];
   };
 
-  const loadAvailableTimes = async (date) => {
+  const loadAvailableTimes = useCallback(async (date) => {
     setLoading(true);
     try {
       const response = await api.getAvailability(selectedLocation, date);
@@ -103,7 +97,13 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedLocation, allTimeSlots]);
+
+  useEffect(() => {
+    if (currentDate) {
+      loadAvailableTimes(formatDate(currentDate));
+    }
+  }, [currentDate, loadAvailableTimes]);
 
   const handleDateSelect = (date) => {
     setCurrentDate(date);
