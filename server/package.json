@@ -1,0 +1,12 @@
+{
+  "name": "snip-sync-server",
+  "version": "1.0.0",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "axios": "^1.8.2",
+    "googleapis": "^146.0.0",
+    "exceljs": "^4.4.0"
+  }
+} 

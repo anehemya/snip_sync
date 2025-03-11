@@ -2,8 +2,11 @@ services:
   - type: web
     name: snip-sync
     env: node
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: |
+      npm install
+      cd server && npm install
+      cd ../clients && npm install && npm run build
+    startCommand: cd server && node server.js
     envVars:
       - key: NODE_ENV
         value: production 
