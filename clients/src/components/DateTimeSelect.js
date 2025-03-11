@@ -3,14 +3,30 @@ import DatePicker from 'react-datepicker';
 import { api } from '../utils/api';
 import "react-datepicker/dist/react-datepicker.css";
 
-function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime }) {
+function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime, selectedLocation }) {
   const [availableTimes, setAvailableTimes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentDate, setCurrentDate] = useState(selectedDate ? new Date(selectedDate) : new Date());
+  const [nextAvailableDate, setNextAvailableDate] = useState(null);
 
-  // Update time slots to 24-hour format to match Google Sheet
-  const allTimeSlots = ['18:00', '18:45', '19:30'];  // 6:00 PM, 6:45 PM, 7:30 PM
+  // All possible time slots are defined in an array (9 AM to 10 PM, 15-min intervals)
+  const allTimeSlots = [
+    '9:00', '9:15', '9:30', '9:45',
+    '10:00', '10:15', '10:30', '10:45',
+    '11:00', '11:15', '11:30', '11:45',
+    '12:00', '12:15', '12:30', '12:45',
+    '13:00', '13:15', '13:30', '13:45',
+    '14:00', '14:15', '14:30', '14:45',
+    '15:00', '15:15', '15:30', '15:45',
+    '16:00', '16:15', '16:30', '16:45',
+    '17:00', '17:15', '17:30', '17:45',
+    '18:00', '18:15', '18:30', '18:45',
+    '19:00', '19:15', '19:30', '19:45',
+    '20:00', '20:15', '20:30', '20:45',
+    '21:00', '21:15', '21:30', '21:45',
+    '22:00'
+  ];
 
   // Add this function to convert 24h to 12h format
   const convertTo12Hour = (time24) => {
@@ -50,18 +66,33 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
   const loadAvailableTimes = async (date) => {
     setLoading(true);
     try {
-      const response = await api.getAvailability(null, date);
+      const response = await api.getAvailability(selectedLocation, date);
       console.log('Raw availability data:', response.data);
       
-      // Skip the header row [0] and filter for the selected date and available slots
+      // Skip the header row [0] and filter for the selected date, location and available slots
       const times = response.data
         .slice(1) // Skip header row
         .filter(slot => 
           slot[0] === date && // Match date
+          slot[2] === selectedLocation && // Match location
           slot[3] === 'YES' && // Is available
           allTimeSlots.includes(slot[1]) // Is one of our time slots
         )
         .map(slot => slot[1]); // Get just the time
+
+      // If no times available, find next available date
+      if (times.length === 0) {
+        const nextDate = response.data
+          .slice(1)
+          .find(slot => 
+            new Date(slot[0]) > new Date(date) && 
+            slot[3] === 'YES' && 
+            allTimeSlots.includes(slot[1])
+          );
+        setNextAvailableDate(nextDate ? nextDate[0] : null);
+      } else {
+        setNextAvailableDate(null);
+      }
 
       console.log('Filtered available times:', times);
       setAvailableTimes(times);
@@ -114,22 +145,26 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
         <div className="loading">Loading available times...</div>
       ) : error ? (
         <div className="error">{error}</div>
+      ) : availableTimes.length === 0 ? (
+        <div className="no-times-message">
+          <p>No times available on this date.</p>
+          {nextAvailableDate && (
+            <p>Next available date: {new Date(nextAvailableDate).toLocaleDateString()}</p>
+          )}
+        </div>
       ) : (
         <div className="time-slots">
-          {allTimeSlots.map((time24) => {
-            return (
+          {allTimeSlots
+            .filter(time24 => availableTimes.includes(time24))
+            .map((time24) => (
               <button
                 key={time24}
-                className={`time-slot ${selectedTime === time24 ? 'selected' : ''} ${
-                  !availableTimes.includes(time24) ? 'unavailable' : ''
-                }`}
-                onClick={() => availableTimes.includes(time24) && handleTimeSelect(time24)}
-                disabled={!availableTimes.includes(time24)}
+                className={`time-slot ${selectedTime === time24 ? 'selected' : ''}`}
+                onClick={() => handleTimeSelect(time24)}
               >
                 {formatDisplayTime(time24)}
               </button>
-            )}
-          )}
+            ))}
         </div>
       )}
 

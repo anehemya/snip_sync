@@ -49,6 +49,7 @@ function App() {
             updateData={updateAppointmentData}
             selectedDate={appointmentData.date}
             selectedTime={appointmentData.time}
+            selectedLocation={appointmentData.location}
           />
         );
       case 3:

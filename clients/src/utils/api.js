@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://your-render-app.onrender.com'
+  : 'http://localhost:5000';
 
 export const api = {
   // Get available time slots
