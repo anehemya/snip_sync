@@ -1,11 +1,10 @@
 const { google } = require('googleapis');
 const path = require('path');
+const config = require('../config/config');
+const credentials = config.google;
 
 class SheetManager {
   constructor() {
-    // Load credentials from the downloaded JSON file
-    const credentials = require(path.join(__dirname, '../config/google-credentials.json'));
-    
     // Configure authentication
     this.auth = new google.auth.GoogleAuth({
       credentials,
