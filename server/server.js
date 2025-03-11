@@ -5,7 +5,15 @@ const appointmentRoutes = require('./routes/appointmentRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',                // Local development
+    'https://snip-sync.onrender.com',       // Your Render backend URL
+    // Add your Netlify URL once you have it
+  ],
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes
