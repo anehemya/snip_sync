@@ -3,10 +3,18 @@ services:
     name: snip-sync
     env: node
     buildCommand: |
+      echo "=== Current directory structure ==="
+      ls -la
+      echo "=== Server directory structure ==="
+      ls -la server/
       npm install
       cd server && npm install
       cd ../clients && npm install && npm run build
-    startCommand: cd server && node server.js
+      echo "=== Final directory structure ==="
+      ls -la
+      echo "=== Server directory after build ==="
+      ls -la server/
+    startCommand: node ./server/server.js
     envVars:
       - key: NODE_ENV
         value: production 
