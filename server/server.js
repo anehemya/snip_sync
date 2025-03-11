@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const appointmentRoutes = require('./routes/appointmentRoutes');
+const google = require('googleapis');
+const credentials = require('./config/config').googleCredentials;
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +20,11 @@ app.use(express.json());
 
 // Routes
 app.use('/api/appointments', appointmentRoutes);
+
+const auth = new google.auth.GoogleAuth({
+  credentials: credentials,
+  scopes: ['https://www.googleapis.com/auth/spreadsheets']
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
