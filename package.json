@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node ./server/server.js",
-    "build": "cd clients && npm install && npm run build"
+    "build": "cd clients && npm install && npm run build && ls dist"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -22,6 +22,7 @@
   "homepage": "https://github.com/anehemya/snip_sync#readme",
   "description": "",
   "dependencies": {
+    "express": "^4.21.2",
     "react-router-dom": "^7.3.0"
   }
 }
