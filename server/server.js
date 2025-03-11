@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const appointmentRoutes = require('./routes/appointmentRoutes');
-const google = require('googleapis');
-const credentials = require('./config/config').googleCredentials;
+const { google } = require('googleapis');
+const credentials = require('./config/config').google;
 
 const app = express();
 const PORT = process.env.PORT || 5000;
