@@ -1,3 +1,5 @@
+process.env.NODE_OPTIONS = '--openssl-legacy-provider';
+
 const express = require('express');
 const cors = require('cors');
 const appointmentRoutes = require('./routes/appointmentRoutes');

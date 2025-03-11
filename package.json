@@ -6,7 +6,7 @@
     "build": "cd clients && npm install && npm run build && ls dist"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": "18.x"
   },
   "main": "index.js",
   "repository": {
