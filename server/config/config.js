@@ -3,6 +3,17 @@ const getGoogleCredentials = () => {
     console.log('NODE_ENV:', process.env.NODE_ENV);
     if (process.env.NODE_ENV === 'production') {
       console.log('Running in production mode');
+      
+      // Log environment variable presence (not values)
+      console.log('Environment variables check:', {
+        GOOGLE_CREDENTIALS_TYPE: !!process.env.GOOGLE_CREDENTIALS_TYPE,
+        GOOGLE_PROJECT_ID: !!process.env.GOOGLE_PROJECT_ID,
+        GOOGLE_PRIVATE_KEY: !!process.env.GOOGLE_PRIVATE_KEY,
+        GOOGLE_PRIVATE_KEY_ID: !!process.env.GOOGLE_PRIVATE_KEY_ID,
+        GOOGLE_CLIENT_EMAIL: !!process.env.GOOGLE_CLIENT_EMAIL,
+        GOOGLE_CLIENT_ID: !!process.env.GOOGLE_CLIENT_ID
+      });
+
       if (!process.env.GOOGLE_PRIVATE_KEY) {
         console.log('Missing GOOGLE_PRIVATE_KEY environment variable');
         throw new Error('Google credentials environment variables are not set');
@@ -40,3 +51,4 @@ const config = {
 };
 
 module.exports = config; 
+
