@@ -17,8 +17,17 @@ class SheetManager {
   }
 
   async getSheets() {
-    const authClient = await this.auth.getClient();
-    return google.sheets({ version: 'v4', auth: authClient });
+    try {
+      const authClient = await this.auth.getClient();
+      return google.sheets({ version: 'v4', auth: authClient });
+    } catch (error) {
+      console.error('Authentication error:', error);
+      if (error.code === 'ERR_OSSL_UNSUPPORTED') {
+        console.error('OpenSSL error - Please set NODE_OPTIONS=--openssl-legacy-provider in your environment');
+        // Fall back to alternative method or return empty data
+      }
+      throw error;
+    }
   }
 
   async saveAppointment(appointmentData) {

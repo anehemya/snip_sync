@@ -17,4 +17,6 @@ services:
     startCommand: node ./server/server.js
     envVars:
       - key: NODE_ENV
-        value: production 
+        value: production
+    runtime: node
+    nodeVersion: 18.x 

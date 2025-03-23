@@ -52,9 +52,15 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
   //   return `${hours.toString().padStart(2, '0')}:${minutes}`;
   // };
 
+  const formatDateForAPI = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const formatDate = (date) => {
-    // Format date as YYYY-MM-DD to match Google Sheet format
-    return date.toISOString().split('T')[0];
+    return formatDateForAPI(new Date(date));
   };
 
   const loadAvailableTimes = useCallback(async (date) => {
@@ -76,14 +82,32 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
 
       // If no times available, find next available date
       if (times.length === 0) {
-        const nextDate = response.data
+        // Get all future available dates
+        const futureDates = response.data
           .slice(1)
-          .find(slot => 
-            new Date(slot[0]) > new Date(date) && 
-            slot[3] === 'YES' && 
-            allTimeSlots.includes(slot[1])
-          );
-        setNextAvailableDate(nextDate ? nextDate[0] : null);
+          .filter(slot => {
+            const slotDate = new Date(slot[0]);
+            const currentDate = new Date(date);
+            
+            // Reset both dates to midnight for comparison
+            slotDate.setHours(0, 0, 0, 0);
+            currentDate.setHours(0, 0, 0, 0);
+            
+            // Check if it's a future date with availability
+            return slotDate.getTime() > currentDate.getTime() && 
+                   slot[2] === selectedLocation && 
+                   slot[3] === 'YES' && 
+                   allTimeSlots.includes(slot[1]);
+          })
+          .map(slot => slot[0]); // Get just the dates
+
+        // Sort dates and get the earliest one
+        const sortedDates = [...new Set(futureDates)].sort((a, b) => {
+          return new Date(a) - new Date(b);
+        });
+
+        console.log('Future available dates:', sortedDates);
+        setNextAvailableDate(sortedDates[0] || null);
       } else {
         setNextAvailableDate(null);
       }

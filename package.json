@@ -2,11 +2,11 @@
   "name": "snip_sync",
   "version": "1.0.0",
   "scripts": {
-    "start": "NODE_OPTIONS='--openssl-legacy-provider' node ./server/server.js",
+    "start": "node ./server/server.js",
     "build": "cd clients && npm install && npm run build && ls dist"
   },
   "engines": {
-    "node": "16.x"
+    "node": "18.x"
   },
   "main": "index.js",
   "repository": {
@@ -27,7 +27,7 @@
     "dotenv": "^16.4.7",
     "exceljs": "^4.4.0",
     "express": "^4.21.2",
-    "googleapis": "^105.0.0",
+    "googleapis": "^126.0.1",
     "react-router-dom": "^7.3.0"
   }
 }
