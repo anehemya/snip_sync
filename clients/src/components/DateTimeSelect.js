@@ -28,29 +28,13 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
     '22:00'
   ], []); // Empty dependency array since this never changes
 
-  // Add this function to convert 24h to 12h format
-  // const convertTo12Hour = (time24) => {
-  //   const [hours, minutes] = time24.split(':');
-  //   const hour = parseInt(hours);
-  //   const ampm = hour >= 12 ? 'PM' : 'AM';
-  //   const hour12 = hour % 12 || 12;
-  //   return `${hour12}:${minutes} ${ampm}`;
-  // };
-
-  // // Add this function to convert 12h to 24h format
-  // const convertTo24Hour = (time12) => {
-  //   const [time, modifier] = time12.split(' ');
-  //   let [hours, minutes] = time.split(':');
-  //   hours = parseInt(hours);
-    
-  //   if (hours === 12) {
-  //     hours = modifier === 'PM' ? 12 : 0;
-  //   } else {
-  //     hours = modifier === 'PM' ? hours + 12 : hours;
-  //   }
-    
-  //   return `${hours.toString().padStart(2, '0')}:${minutes}`;
-  // };
+  // Move formatDate to component level
+  const formatDate = useCallback((date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }, []);
 
   const loadAvailableTimes = useCallback(async (date) => {
     setLoading(true);
@@ -114,16 +98,9 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
 
   useEffect(() => {
     if (currentDate) {
-      const formatDate = (date) => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      };
-      
       loadAvailableTimes(formatDate(currentDate));
     }
-  }, [currentDate, loadAvailableTimes]);
+  }, [currentDate, loadAvailableTimes, formatDate]);
 
   const handleDateSelect = (date) => {
     setCurrentDate(date);
