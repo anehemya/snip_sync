@@ -66,6 +66,11 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
             slotDate.setHours(0, 0, 0, 0);
             currentDate.setHours(0, 0, 0, 0);
             
+            // If it's the same date, only include if there are available times
+            if (slotDate.getTime() === currentDate.getTime()) {
+              return false; // Skip current date since we already know it has no times
+            }
+            
             // Check if it's a future date with availability
             return slotDate.getTime() > currentDate.getTime() && 
                    slot[2] === selectedLocation && 
