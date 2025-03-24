@@ -1,6 +1,8 @@
 const getGoogleCredentials = () => {
   try {
     console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('Raw GOOGLE_PRIVATE_KEY:', process.env.GOOGLE_PRIVATE_KEY ? 'exists' : 'undefined');
+    
     if (process.env.NODE_ENV === 'production') {
       console.log('Running in production mode');
       
@@ -21,8 +23,17 @@ const getGoogleCredentials = () => {
 
       // Clean and format the private key
       const privateKey = process.env.GOOGLE_PRIVATE_KEY
-        .replace(/\\n/g, '\n')
-        .replace(/"/g, '');  // Remove any quotes
+        .replace(/\\n/g, '\n')    // Replace double backslash with newline
+        // .replace(/"/g, '');       // Remove quotes
+
+      // Add more detailed debugging
+      console.log('Private key format:', {
+        beforeProcessing: process.env.GOOGLE_PRIVATE_KEY.substring(0, 30),
+        afterProcessing: privateKey.substring(0, 30),
+        backslashCount: (process.env.GOOGLE_PRIVATE_KEY.match(/\\/g) || []).length,
+        containsNewlines: privateKey.includes('\n'),
+        startsWithBegin: privateKey.startsWith('-----BEGIN')
+      });
 
       return {
         type: process.env.GOOGLE_CREDENTIALS_TYPE,

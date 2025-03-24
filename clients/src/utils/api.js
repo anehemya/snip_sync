@@ -51,6 +51,4 @@ export const submitAppointment = async (appointmentData) => {
     console.error('Error:', error);
     throw error;
   }
-};
-
-export { api }; 
+}; 

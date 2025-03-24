@@ -1,11 +1,11 @@
 import React from 'react';
-import { api } from '../utils/api';
+import { bookAppointment } from '../utils/api';
 
 function ConfirmationPage({ onPrev, appointmentData, onSuccess }) {
   const handleConfirm = async () => {
     try {
       console.log('Attempting to book appointment with data:', appointmentData);
-      const response = await api.bookAppointment(appointmentData);
+      const response = await bookAppointment(appointmentData);
       console.log('Booking response:', response);
       if (response.success) {
         onSuccess();
