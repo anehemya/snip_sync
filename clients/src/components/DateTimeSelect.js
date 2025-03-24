@@ -42,6 +42,17 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
       const response = await getAvailability(selectedLocation, date);
       console.log('Raw availability data:', response.data);
       
+      console.log('Selected Location:', selectedLocation);
+      console.log('Available slots before filtering:', response.data.slice(1));
+      console.log('Filtered slots:', response.data.slice(1).filter(slot => 
+        console.log('Checking slot:', slot, {
+          dateMatch: slot[0] === date,
+          locationMatch: slot[2] === selectedLocation,
+          isAvailable: slot[3] === 'YES',
+          isValidTime: allTimeSlots.includes(slot[1])
+        })
+      ));
+      
       // Skip the header row [0] and filter for the selected date, location and available slots
       const times = response.data
         .slice(1) // Skip header row
