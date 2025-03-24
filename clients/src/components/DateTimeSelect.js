@@ -107,7 +107,7 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
     } finally {
       setLoading(false);
     }
-  }, [selectedLocation, allTimeSlots]);
+  }, [selectedLocation, allTimeSlots, formatDate]);
 
   useEffect(() => {
     if (currentDate) {
