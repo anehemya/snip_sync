@@ -24,7 +24,7 @@ const getGoogleCredentials = () => {
       // Clean and format the private key
       const privateKey = process.env.GOOGLE_PRIVATE_KEY
         .replace(/\\n/g, '\n')    // Replace double backslash with newline
-        // .replace(/"/g, '');       // Remove quotes
+        .replace(/"/g, '');       // Remove quotes
 
       // Add more detailed debugging
       console.log('Private key format:', {
