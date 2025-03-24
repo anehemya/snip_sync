@@ -40,29 +40,17 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
     setLoading(true);
     try {
       const response = await getAvailability(selectedLocation, date);
-      console.log('Raw availability data:', response.data);
-      
-      // console.log('Selected Location:', selectedLocation);
-      // console.log('Available slots before filtering:', response.data.slice(1));
-      // console.log('Filtered slots:', response.data.slice(1).filter(slot => 
-      //   console.log('Checking slot:', slot, {
-      //     dateMatch: slot[0] === date,
-      //     locationMatch: slot[2] === selectedLocation,
-      //     isAvailable: slot[3] === 'YES',
-      //     isValidTime: allTimeSlots.includes(slot[1])
-      //   })
-      // ));
       
       // Skip the header row [0] and filter for the selected date, location and available slots
       const times = response.data
-        .slice(1) // Skip header row
+        .slice(1)
         .filter(slot => 
-          slot[0] === date && // Match date
-          slot[2] === selectedLocation && // Match location
-          slot[3] === 'YES' && // Is available
-          allTimeSlots.includes(slot[1]) // Is one of our time slots
+          slot[0] === date && 
+          slot[2] === selectedLocation && 
+          slot[3] === 'YES' && 
+          allTimeSlots.includes(slot[1])
         )
-        .map(slot => slot[1]); // Get just the time
+        .map(slot => slot[1]);
 
       // If no times available, find next available date
       if (times.length === 0) {
@@ -77,30 +65,19 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
             slotDate.setHours(0, 0, 0, 0);
             currentDate.setHours(0, 0, 0, 0);
             
-            // If it's the same date, only include if there are available times
-            if (slotDate.getTime() === currentDate.getTime()) {
-              return false; // Skip current date since we already know it has no times
-            }
-            
             // Check if it's a future date with availability
             return slotDate.getTime() > currentDate.getTime() && 
                    slot[2] === selectedLocation && 
                    slot[3] === 'YES' && 
                    allTimeSlots.includes(slot[1]);
           })
-          .map(slot => slot[0]); // Get just the dates
+          .map(slot => slot[0]);
 
         // Sort dates and get the earliest one
-        const sortedDates = [...new Set(futureDates)].sort((a, b) => {
-          return new Date(a) - new Date(b);
-        });
+        const sortedDates = [...new Set(futureDates)].sort();
 
-        console.log('Future available dates:', sortedDates);
-
-        // Add one day to the next available date
         if (sortedDates[0]) {
-          const nextDate = new Date(sortedDates[0]);  // Add one day
-          setNextAvailableDate(formatDate(nextDate));
+          setNextAvailableDate(sortedDates[0]); // Remove formatDate here since the date is already in YYYY-MM-DD format
         } else {
           setNextAvailableDate(null);
         }
@@ -108,7 +85,6 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
         setNextAvailableDate(null);
       }
 
-      console.log('Filtered available times:', times);
       setAvailableTimes(times);
       setError(null);
     } catch (err) {
@@ -169,7 +145,7 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
         <div className="no-times-message">
           <p>No times available on this date.</p>
           {nextAvailableDate && (
-            <p>Next available date: {new Date(nextDate).toLocaleDateString()}</p>
+            <p>Next available date: {new Date(nextAvailableDate).toLocaleDateString()}</p>
           )}
         </div>
       ) : (
