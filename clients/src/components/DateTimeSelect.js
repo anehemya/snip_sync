@@ -77,7 +77,7 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
         const sortedDates = [...new Set(futureDates)].sort();
 
         if (sortedDates[0]) {
-          setNextAvailableDate(sortedDates[0]); // Remove formatDate here since the date is already in YYYY-MM-DD format
+          setNextAvailableDate(sortedDates[0]);
         } else {
           setNextAvailableDate(null);
         }
@@ -93,7 +93,7 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
     } finally {
       setLoading(false);
     }
-  }, [selectedLocation, allTimeSlots, formatDate]);
+  }, [selectedLocation, allTimeSlots]);
 
   useEffect(() => {
     if (currentDate) {
