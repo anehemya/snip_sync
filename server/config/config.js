@@ -29,7 +29,7 @@ const getGoogleCredentials = () => {
       // Add more detailed debugging
       console.log('Private key format:', {
         beforeProcessing: process.env.GOOGLE_PRIVATE_KEY.substring(0, 30),
-        afterProcessing: privateKey.substring(0, 30),
+        afterProcessing: privateKey.substring(0, 100),
         backslashCount: (process.env.GOOGLE_PRIVATE_KEY.match(/\\/g) || []).length,
         containsNewlines: privateKey.includes('\n'),
         startsWithBegin: privateKey.startsWith('-----BEGIN')
