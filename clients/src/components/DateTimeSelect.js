@@ -85,7 +85,15 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
         });
 
         console.log('Future available dates:', sortedDates);
-        setNextAvailableDate(sortedDates[0] || null);
+
+        // Add one day to the next available date
+        if (sortedDates[0]) {
+          const nextDate = new Date(sortedDates[0]);
+          nextDate.setDate(nextDate.getDate() + 1);  // Add one day
+          setNextAvailableDate(formatDate(nextDate));
+        } else {
+          setNextAvailableDate(null);
+        }
       } else {
         setNextAvailableDate(null);
       }
