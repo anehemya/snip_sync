@@ -41,6 +41,9 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
     try {
       const response = await getAvailability(selectedLocation, date);
       
+      console.log('Current date:', date);
+      console.log('Selected location:', selectedLocation);
+      
       // Skip the header row [0] and filter for the selected date, location and available slots
       const times = response.data
         .slice(1)
@@ -52,31 +55,44 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
         )
         .map(slot => slot[1]);
 
+      console.log('Available times for current date:', times);
+
       // If no times available, find next available date
       if (times.length === 0) {
         // Get all future available dates
         const futureDates = response.data
           .slice(1)
           .filter(slot => {
-            const slotDate = new Date(slot[0]);
-            const currentDate = new Date(date);
+            // Compare dates as strings first since they're in YYYY-MM-DD format
+            if (slot[0] === date) {
+              return false; // Skip current date
+            }
             
-            // Reset both dates to midnight for comparison
-            slotDate.setHours(0, 0, 0, 0);
-            currentDate.setHours(0, 0, 0, 0);
-            
-            // Check if it's a future date with availability
-            return slotDate.getTime() > currentDate.getTime() && 
+            const isValid = slot[0] > date && 
                    slot[2] === selectedLocation && 
                    slot[3] === 'YES' && 
                    allTimeSlots.includes(slot[1]);
+            
+            console.log('Checking slot:', {
+              date: slot[0],
+              location: slot[2],
+              available: slot[3],
+              validTime: allTimeSlots.includes(slot[1]),
+              isValid
+            });
+            
+            return isValid;
           })
           .map(slot => slot[0]);
 
+        console.log('Future dates found:', futureDates);
+
         // Sort dates and get the earliest one
         const sortedDates = [...new Set(futureDates)].sort();
+        console.log('Sorted unique dates:', sortedDates);
 
         if (sortedDates[0]) {
+          console.log('Setting next available date to:', sortedDates[0]);
           setNextAvailableDate(sortedDates[0]);
         } else {
           setNextAvailableDate(null);
@@ -145,7 +161,7 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
         <div className="no-times-message">
           <p>No times available on this date.</p>
           {nextAvailableDate && (
-            <p>Next available date: {new Date(nextAvailableDate).toLocaleDateString()}</p>
+            <p>Next available date: {new Date(nextAvailableDate + 'T00:00:00').toLocaleDateString()}</p>
           )}
         </div>
       ) : (
