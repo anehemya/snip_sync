@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import DatePicker from 'react-datepicker';
 import { getAvailability } from '../utils/api';
 import "react-datepicker/dist/react-datepicker.css";
