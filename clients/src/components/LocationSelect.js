@@ -28,7 +28,7 @@ function LocationSelect({ onNext, updateData, selectedLocation }) {
         {locations.map((location) => (
           <button
             key={location}
-            className={`location-button ${selectedLocation === location ? 'selected' : ''}`}
+            className={`location-button`}
             onClick={() => handleLocationSelect(location)}
           >
             {location}

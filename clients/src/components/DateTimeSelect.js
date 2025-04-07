@@ -9,8 +9,15 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
   const [bookedTimes, setBookedTimes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [currentDate, setCurrentDate] = useState(selectedDate ? new Date(selectedDate) : new Date());
+  const [currentDate, setCurrentDate] = useState(() => {
+    if (selectedDate) {
+      // Add T00:00:00 to ensure the date is created in local timezone
+      return new Date(selectedDate + 'T00:00:00');
+    }
+    return new Date();
+  });
   const [nextAvailableDate, setNextAvailableDate] = useState(null);
+  const [latestScheduleDate, setLatestScheduleDate] = useState(null);
 
   // Wrap allTimeSlots in useMemo to prevent unnecessary re-renders
   const allTimeSlots = useMemo(() => [
@@ -32,6 +39,7 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
 
   // Move formatDate to component level
   const formatDate = useCallback((date) => {
+    // Use local timezone values instead of UTC
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
@@ -43,13 +51,20 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
     try {
       const response = await getAvailability(selectedLocation, date);
       
-      // Get all times for this date and location
+      // Get the latest date in the schedule
+      const latestDate = response.data
+        .slice(1)
+        .filter(slot => slot[0] && slot[2] === selectedLocation)
+        .map(slot => slot[0])
+        .sort()
+        .pop();
+
+      // Get all times for this date and location from the spreadsheet
       const daySlots = response.data
         .slice(1)
         .filter(slot => 
           slot[0] === date && 
-          slot[2] === selectedLocation &&
-          allTimeSlots.includes(slot[1])
+          slot[2] === selectedLocation
         );
 
       // Separate into available and booked times
@@ -71,8 +86,7 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
           .filter(slot => 
             slot[0] > date && 
             slot[2] === selectedLocation && 
-            slot[3] === 'YES' && 
-            allTimeSlots.includes(slot[1])
+            slot[3] === 'YES'
           )
           .map(slot => slot[0]);
 
@@ -82,6 +96,9 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
         setNextAvailableDate(null);
       }
 
+      // Store the latest date in state
+      setLatestScheduleDate(latestDate);
+
       setError(null);
     } catch (err) {
       setError('Failed to load available times');
@@ -89,7 +106,7 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
     } finally {
       setLoading(false);
     }
-  }, [selectedLocation, allTimeSlots]);
+  }, [selectedLocation]);
 
   useEffect(() => {
     if (currentDate) {
@@ -97,8 +114,14 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
     }
   }, [currentDate, loadAvailableTimes, formatDate]);
 
+  // Clear selected time when component mounts
+  useEffect(() => {
+    updateData({ time: null });
+  }, []); // Empty dependency array means this runs once on mount
+
   const handleDateSelect = (date) => {
     setCurrentDate(date);
+    // Format date in local timezone
     updateData({ date: formatDate(date) });
   };
 
@@ -145,29 +168,43 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
       ) : (
         <>
           <div className="time-slots">
-            {allTimeSlots.map((time24) => {
-              const isAvailable = availableTimes.includes(time24);
-              const isBooked = bookedTimes.includes(time24);
-              
-              return (
-                <button
-                  key={time24}
-                  className={`time-slot ${selectedTime === time24 ? 'selected' : ''} ${
-                    isAvailable ? 'available' : ''
-                  } ${isBooked ? 'booked' : ''}`}
-                  onClick={() => isAvailable && handleTimeSelect(time24)}
-                  disabled={!isAvailable}
-                >
-                  {formatDisplayTime(time24)}
-                </button>
-              );
+            {[...new Set([...availableTimes, ...bookedTimes])]
+              .sort()
+              .map((time24) => {
+                const isAvailable = availableTimes.includes(time24);
+                
+                return (
+                  <button
+                    key={time24}
+                    className={`time-slot ${isAvailable ? 'available' : 'booked'}`}
+                    onClick={() => isAvailable && handleTimeSelect(time24)}
+                    disabled={!isAvailable}
+                  >
+                    {formatDisplayTime(time24)}
+                  </button>
+                );
             })}
           </div>
           
-          {availableTimes.length === 0 && nextAvailableDate && (
+          {/* Show next available date message if there are no available times, regardless of whether there are booked times */}
+          {availableTimes.length === 0 && (
             <div className="no-times-message">
-              <p>No times available on this date.</p>
-              <p>Next available date: {new Date(nextAvailableDate + 'T00:00:00').toLocaleDateString()}</p>
+              {latestScheduleDate && currentDate && formatDate(currentDate) > latestScheduleDate ? (
+                <>
+                  <p className="calendar-status">Yanay has not yet updated his calendar this far yet.</p>
+                  <p className="last-updated">
+                    Last updated date: {new Date(latestScheduleDate + 'T00:00:00').toLocaleDateString()}
+                  </p>
+                  <p className="stay-tuned">Stay tuned!</p>
+                </>
+              ) : (
+                <>
+                  <p>No times available on this date.</p>
+                  {nextAvailableDate && (
+                    <p>Next available date: {new Date(nextAvailableDate + 'T00:00:00').toLocaleDateString()}</p>
+                  )}
+                </>
+              )}
             </div>
           )}
         </>
