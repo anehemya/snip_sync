@@ -33,6 +33,22 @@ class SheetManager {
   async saveAppointment(appointmentData) {
     try {
       console.log('1. Starting appointment booking for:', appointmentData);
+      
+      // Validate the incoming data
+      if (!appointmentData || typeof appointmentData !== 'object') {
+        console.error('Invalid appointment data:', appointmentData);
+        return { success: false, error: 'Invalid appointment data' };
+      }
+
+      // Validate required fields
+      const requiredFields = ['date', 'time', 'name', 'phone', 'location'];
+      const missingFields = requiredFields.filter(field => !appointmentData[field]);
+      
+      if (missingFields.length > 0) {
+        console.error('Missing fields:', missingFields);
+        return { success: false, error: `Missing required fields: ${missingFields.join(', ')}` };
+      }
+
       const sheets = await this.getSheets();
       
       // First check if the slot is already booked
@@ -73,8 +89,8 @@ class SheetManager {
           appointmentData.name,
           appointmentData.phone,
           appointmentData.location,
-          appointmentData.address,
-          appointmentData.additionalInfo
+          appointmentData.address || '',
+          appointmentData.additionalInfo || ''
         ]
       ];
 

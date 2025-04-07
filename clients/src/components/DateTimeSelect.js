@@ -94,16 +94,17 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
 
   useEffect(() => {
     if (currentDate) {
-      loadAvailableTimes(formatDate(currentDate));
+      const formattedDate = formatDate(currentDate);
+      
+      // Load available times
+      loadAvailableTimes(formattedDate);
+      
+      // Clear selected time only if date changes
+      if (selectedDate && formattedDate !== selectedDate) {
+        updateData({ time: null });
+      }
     }
-  }, [currentDate, loadAvailableTimes, formatDate]);
-
-  // Add updateData to dependency array
-  useEffect(() => {
-    if (typeof updateData === 'function') {
-      updateData({ time: null });
-    }
-  }, [updateData]); // Add updateData to dependencies
+  }, [currentDate, selectedDate, loadAvailableTimes, formatDate, updateData]);
 
   const handleDateSelect = (date) => {
     setCurrentDate(date);

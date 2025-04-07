@@ -22,12 +22,41 @@ export const getAvailability = async (location, date) => {
 // Book an appointment
 export const bookAppointment = async (appointmentData) => {
   try {
-    console.log('Sending booking request:', appointmentData);
-    const response = await api.post('/api/appointments/book', appointmentData);
-    console.log('Received booking response:', response.data);
+    if (!appointmentData) {
+      throw new Error('No appointment data provided');
+    }
+
+    const payload = {
+      date: appointmentData.date,
+      time: appointmentData.time,
+      name: appointmentData.name,
+      phone: appointmentData.phone,
+      location: appointmentData.location,
+      address: appointmentData.address || '',
+      additionalInfo: appointmentData.additionalInfo || ''
+    };
+
+    console.log('Sending booking request with payload:', JSON.stringify(payload, null, 2));
+
+    // Use the configured api instance instead
+    const response = await api.post('/api/appointments/book', payload);
+
+    console.log('Server response:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error in bookAppointment:', error);
+    console.error('Full error details:', {
+      message: error.message,
+      response: error.response?.data,
+      request: {
+        url: error.config?.url,
+        data: error.config?.data,
+        headers: error.config?.headers
+      }
+    });
+
+    if (error.response) {
+      throw new Error(error.response.data.error || 'Failed to book appointment');
+    }
     throw error;
   }
 };

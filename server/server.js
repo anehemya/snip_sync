@@ -21,6 +21,7 @@ const allowedOrigins = [
   'https://yanayscuts.netlify.app',
 ];
 
+// 1. Configure CORS first
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -31,10 +32,35 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Routes
+// 2. Then body parsers
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// 3. Debug middleware
+app.use((req, res, next) => {
+  console.log('Request received:', {
+    method: req.method,
+    path: req.path,
+    body: req.body,
+    headers: req.headers
+  });
+  next();
+});
+
+// 4. Routes
 app.use('/api/appointments', appointmentRoutes);
+
+// 5. Error handling
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({
+    success: false,
+    error: err.message || 'Internal server error'
+  });
+});
 
 const auth = new google.auth.GoogleAuth({
   credentials: credentials,

@@ -4,9 +4,21 @@ import { bookAppointment } from '../utils/api';
 function ConfirmationPage({ onPrev, appointmentData, onSuccess }) {
   const handleConfirm = async () => {
     try {
+      // Debug log
+      console.log('Full appointment data:', JSON.stringify(appointmentData, null, 2));
+
+      // Comprehensive validation
+      const requiredFields = ['date', 'time', 'name', 'phone', 'location'];
+      const missingFields = requiredFields.filter(field => !appointmentData[field]);
+      
+      if (missingFields.length > 0) {
+        alert(`Missing required fields: ${missingFields.join(', ')}`);
+        return;
+      }
+
       console.log('Attempting to book appointment with data:', appointmentData);
       const response = await bookAppointment(appointmentData);
-      console.log('Booking response:', response);
+      
       if (response.success) {
         onSuccess();
       } else {
@@ -14,9 +26,12 @@ function ConfirmationPage({ onPrev, appointmentData, onSuccess }) {
       }
     } catch (error) {
       console.error('Error booking appointment:', error);
-      alert('Failed to book appointment. Please try again.');
+      alert(error.message || 'Failed to book appointment. Please try again.');
     }
   };
+
+  // Add validation check in render to show what data is available
+  console.log('Rendering confirmation page with data:', appointmentData);
 
   return (
     <div className="confirmation-page">
