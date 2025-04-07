@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import DatePicker from 'react-datepicker';
 import { getAvailability } from '../utils/api';
 import "react-datepicker/dist/react-datepicker.css";
+import './DateTimeSelect.css'; // Make sure this import exists
 
 function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime, selectedLocation }) {
   const [availableTimes, setAvailableTimes] = useState([]);
@@ -154,7 +155,12 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
       </div>
 
       {loading ? (
-        <div className="loading">Loading available times...</div>
+        <div className="loading-container">
+          <div className="loading-bar">
+            <div className="loading-progress"></div>
+          </div>
+          <p>Loading available times...</p>
+        </div>
       ) : error ? (
         <div className="error">{error}</div>
       ) : availableTimes.length === 0 ? (
@@ -179,6 +185,16 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
             ))}
         </div>
       )}
+
+      <div className="whatsapp-link">
+        <a 
+          href="https://wa.me/13057261246?text=Hi%20Yanay,%20I%20would%20like%20to%20request%20a%20custom%20time%20for%20my%20appointment."
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          For a custom time request, contact Yanay on WhatsApp
+        </a>
+      </div>
 
       <div className="navigation">
         <button className="back-button" onClick={onPrev}>Back</button>
