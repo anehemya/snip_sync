@@ -19,7 +19,7 @@ app.use(cors({
   origin: [
     'http://localhost:3000',                // Local development
     'https://snip-sync.onrender.com',       // Your Render backend URL
-    'https://unrivaled-starburst-c37f84.netlify.app', // Your Netlify URL
+    'https://yanayscuts.netlify.app/', // Your Netlify URL
   ],
   methods: ['GET', 'POST'],
   credentials: true
