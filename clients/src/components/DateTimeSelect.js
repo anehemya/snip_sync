@@ -163,26 +163,21 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
         </div>
       ) : error ? (
         <div className="error">{error}</div>
-      ) : availableTimes.length === 0 ? (
-        <div className="no-times-message">
-          <p>No times available on this date.</p>
-          {nextAvailableDate && (
-            <p>Next available date: {new Date(nextAvailableDate + 'T00:00:00').toLocaleDateString()}</p>
-          )}
-        </div>
       ) : (
         <div className="time-slots">
-          {allTimeSlots
-            .filter(time24 => availableTimes.includes(time24))
-            .map((time24) => (
+          {allTimeSlots.map((time24) => {
+            const isAvailable = availableTimes.includes(time24);
+            return (
               <button
                 key={time24}
-                className={`time-slot ${selectedTime === time24 ? 'selected' : ''}`}
-                onClick={() => handleTimeSelect(time24)}
+                className={`time-slot ${selectedTime === time24 ? 'selected' : ''} ${isAvailable ? 'available' : 'unavailable'}`}
+                onClick={() => isAvailable && handleTimeSelect(time24)}
+                disabled={!isAvailable}
               >
                 {formatDisplayTime(time24)}
               </button>
-            ))}
+            )}
+          )}
         </div>
       )}
 
