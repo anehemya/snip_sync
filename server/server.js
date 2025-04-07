@@ -15,16 +15,23 @@ console.log('Starting server with credentials:', {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://snip-sync.onrender.com',
+  'https://yanayscuts.netlify.app',
+];
+
 app.use(cors({
-  origin: [
-    'http://localhost:3000',                // Local development
-    'https://snip-sync.onrender.com',       // Your Render backend URL
-    'https://yanayscuts.netlify.app/', // Your Netlify URL
-  ],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
   methods: ['GET', 'POST'],
-  credentials: true
 }));
-app.use(express.json());
 
 // Routes
 app.use('/api/appointments', appointmentRoutes);
