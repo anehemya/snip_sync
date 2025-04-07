@@ -6,6 +6,7 @@ import './DateTimeSelect.css'; // Make sure this import exists
 
 function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime, selectedLocation }) {
   const [availableTimes, setAvailableTimes] = useState([]);
+  const [bookedTimes, setBookedTimes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentDate, setCurrentDate] = useState(selectedDate ? new Date(selectedDate) : new Date());
@@ -42,67 +43,45 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
     try {
       const response = await getAvailability(selectedLocation, date);
       
-      console.log('Current date:', date);
-      console.log('Selected location:', selectedLocation);
-      
-      // Skip the header row [0] and filter for the selected date, location and available slots
-      const times = response.data
+      // Get all times for this date and location
+      const daySlots = response.data
         .slice(1)
         .filter(slot => 
           slot[0] === date && 
-          slot[2] === selectedLocation && 
-          slot[3] === 'YES' && 
+          slot[2] === selectedLocation &&
           allTimeSlots.includes(slot[1])
-        )
+        );
+
+      // Separate into available and booked times
+      const available = daySlots
+        .filter(slot => slot[3] === 'YES')
         .map(slot => slot[1]);
 
-      console.log('Available times for current date:', times);
+      const booked = daySlots
+        .filter(slot => slot[3] === 'NO')
+        .map(slot => slot[1]);
 
-      // If no times available, find next available date
-      if (times.length === 0) {
-        // Get all future available dates
+      setAvailableTimes(available);
+      setBookedTimes(booked);
+
+      // If no available times, find next available date
+      if (available.length === 0) {
         const futureDates = response.data
           .slice(1)
-          .filter(slot => {
-            // Compare dates as strings first since they're in YYYY-MM-DD format
-            if (slot[0] === date) {
-              return false; // Skip current date
-            }
-            
-            const isValid = slot[0] > date && 
-                   slot[2] === selectedLocation && 
-                   slot[3] === 'YES' && 
-                   allTimeSlots.includes(slot[1]);
-            
-            console.log('Checking slot:', {
-              date: slot[0],
-              location: slot[2],
-              available: slot[3],
-              validTime: allTimeSlots.includes(slot[1]),
-              isValid
-            });
-            
-            return isValid;
-          })
+          .filter(slot => 
+            slot[0] > date && 
+            slot[2] === selectedLocation && 
+            slot[3] === 'YES' && 
+            allTimeSlots.includes(slot[1])
+          )
           .map(slot => slot[0]);
 
-        console.log('Future dates found:', futureDates);
-
-        // Sort dates and get the earliest one
         const sortedDates = [...new Set(futureDates)].sort();
-        console.log('Sorted unique dates:', sortedDates);
-
-        if (sortedDates[0]) {
-          console.log('Setting next available date to:', sortedDates[0]);
-          setNextAvailableDate(sortedDates[0]);
-        } else {
-          setNextAvailableDate(null);
-        }
+        setNextAvailableDate(sortedDates[0] || null);
       } else {
         setNextAvailableDate(null);
       }
 
-      setAvailableTimes(times);
       setError(null);
     } catch (err) {
       setError('Failed to load available times');
@@ -164,21 +143,34 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
       ) : error ? (
         <div className="error">{error}</div>
       ) : (
-        <div className="time-slots">
-          {allTimeSlots.map((time24) => {
-            const isAvailable = availableTimes.includes(time24);
-            return (
-              <button
-                key={time24}
-                className={`time-slot ${selectedTime === time24 ? 'selected' : ''} ${isAvailable ? 'available' : 'unavailable'}`}
-                onClick={() => isAvailable && handleTimeSelect(time24)}
-                disabled={!isAvailable}
-              >
-                {formatDisplayTime(time24)}
-              </button>
-            )}
+        <>
+          <div className="time-slots">
+            {allTimeSlots.map((time24) => {
+              const isAvailable = availableTimes.includes(time24);
+              const isBooked = bookedTimes.includes(time24);
+              
+              return (
+                <button
+                  key={time24}
+                  className={`time-slot ${selectedTime === time24 ? 'selected' : ''} ${
+                    isAvailable ? 'available' : ''
+                  } ${isBooked ? 'booked' : ''}`}
+                  onClick={() => isAvailable && handleTimeSelect(time24)}
+                  disabled={!isAvailable}
+                >
+                  {formatDisplayTime(time24)}
+                </button>
+              );
+            })}
+          </div>
+          
+          {availableTimes.length === 0 && nextAvailableDate && (
+            <div className="no-times-message">
+              <p>No times available on this date.</p>
+              <p>Next available date: {new Date(nextAvailableDate + 'T00:00:00').toLocaleDateString()}</p>
+            </div>
           )}
-        </div>
+        </>
       )}
 
       <div className="whatsapp-link">
