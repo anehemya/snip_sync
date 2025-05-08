@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000',
-  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   }
@@ -38,7 +37,6 @@ export const bookAppointment = async (appointmentData) => {
 
     console.log('Sending booking request with payload:', JSON.stringify(payload, null, 2));
 
-    // Use the configured api instance instead
     const response = await api.post('/api/appointments/book', payload);
 
     console.log('Server response:', response.data);
