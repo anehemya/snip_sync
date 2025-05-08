@@ -19,41 +19,60 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://snip-sync.onrender.com',
   'https://yanayscuts.netlify.app',
+  'https://www.yanayscuts.netlify.app'
 ];
 
 // 1. Configure CORS first
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      console.log('Origin not allowed by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true,
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Referer', 'Origin'],
+  exposedHeaders: ['Access-Control-Allow-Origin']
 }));
 
-// 2. Then body parsers
+// 2. Security headers middleware
+app.use((req, res, next) => {
+  // Set security headers
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  next();
+});
+
+// 3. Then body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 3. Debug middleware
+// 4. Debug middleware
 app.use((req, res, next) => {
   console.log('Request received:', {
     method: req.method,
     path: req.path,
+    origin: req.headers.origin,
+    referer: req.headers.referer,
     body: req.body,
     headers: req.headers
   });
   next();
 });
 
-// 4. Routes
+// 5. Routes
 app.use('/api/appointments', appointmentRoutes);
 
-// 5. Error handling
+// 6. Error handling
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({
