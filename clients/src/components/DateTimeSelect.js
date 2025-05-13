@@ -206,10 +206,15 @@ function DateTimeSelect({ onNext, onPrev, updateData, selectedDate, selectedTime
           For a custom time request, contact Yanay on WhatsApp
         </a>
       </div>
+      
+      <div className="haircut-note">
+        <p>Note: each haircut requires one time slot</p>
+      </div>
 
       <div className="navigation">
         <button className="back-button" onClick={onPrev}>Back</button>
       </div>
+      
     </div>
   );
 }

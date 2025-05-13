@@ -122,4 +122,16 @@
   color: #333;
   font-weight: 500;
   margin-top: 3px;
+}
+
+.haircut-note {
+  text-align: center;
+  margin: 15px 0 5px 0;
+}
+
+.haircut-note p {
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+  margin: 0;
 } 
