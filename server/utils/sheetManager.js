@@ -51,6 +51,15 @@ class SheetManager {
 
       const sheets = await this.getSheets();
       
+      // Get sheet information to find the actual sheet name
+      const sheetsInfo = await sheets.spreadsheets.get({
+        spreadsheetId: this.appointmentsSheetId
+      });
+      
+      // Get the first sheet name
+      const firstSheetName = sheetsInfo.data.sheets[0].properties.title;
+      console.log(`Using sheet name: "${firstSheetName}" for appointment data`);
+      
       // First check if the slot is already booked
       const existingAppointments = await this.getExistingAppointments(appointmentData.date);
       console.log('2. Existing appointments:', existingAppointments);
@@ -96,7 +105,7 @@ class SheetManager {
 
       await sheets.spreadsheets.values.append({
         spreadsheetId: this.appointmentsSheetId,
-        range: 'Sheet1!A:G',
+        range: `${firstSheetName}!A1:G1`, // Use correct sheet name and more specific range
         valueInputOption: 'USER_ENTERED',
         resource: { values }
       });
@@ -112,9 +121,19 @@ class SheetManager {
   async getExistingAppointments(date) {
     try {
       const sheets = await this.getSheets();
+      
+      // First get sheet information to find the actual sheet name
+      const sheetsInfo = await sheets.spreadsheets.get({
+        spreadsheetId: this.appointmentsSheetId
+      });
+      
+      // Get the first sheet name (most likely it's not exactly "Sheet1")
+      const firstSheetName = sheetsInfo.data.sheets[0].properties.title;
+      console.log(`Found first sheet name: "${firstSheetName}"`);
+      
       const response = await sheets.spreadsheets.values.get({
         spreadsheetId: this.appointmentsSheetId,
-        range: 'Sheet1!A:G',
+        range: `${firstSheetName}!A1:G1000`, // Use more specific range with row limits
       });
       
       return (response.data.values || []).slice(1).filter(row => row[0] === date);
@@ -130,10 +149,19 @@ class SheetManager {
       
       console.log('1. Starting update process for:', { date, time, location });
 
+      // Get sheet information to find the actual sheet name
+      const sheetsInfo = await sheets.spreadsheets.get({
+        spreadsheetId: this.availabilitySheetId
+      });
+      
+      // Get the first sheet name
+      const firstSheetName = sheetsInfo.data.sheets[0].properties.title;
+      console.log(`Using sheet name: "${firstSheetName}" for availability updates`);
+
       // Get all availability data
       const response = await sheets.spreadsheets.values.get({
         spreadsheetId: this.availabilitySheetId,
-        range: 'Sheet1!A:D',
+        range: `${firstSheetName}!A1:D1000`,
       });
 
       const values = response.data.values || [];
@@ -205,7 +233,7 @@ class SheetManager {
       }
 
       console.log(`🎯 Updating row ${targetRowIndex + 1}`);
-      const range = `Sheet1!D${targetRowIndex + 1}`;
+      const range = `${firstSheetName}!D${targetRowIndex + 1}`;
 
       const updateResponse = await sheets.spreadsheets.values.update({
         spreadsheetId: this.availabilitySheetId,
@@ -228,9 +256,19 @@ class SheetManager {
   async getAvailability(location, date) {
     try {
       const sheets = await this.getSheets();
+      
+      // Get sheet information to find the actual sheet name
+      const sheetsInfo = await sheets.spreadsheets.get({
+        spreadsheetId: this.availabilitySheetId
+      });
+      
+      // Get the first sheet name
+      const firstSheetName = sheetsInfo.data.sheets[0].properties.title;
+      console.log(`Using sheet name: "${firstSheetName}" for availability data`);
+      
       const response = await sheets.spreadsheets.values.get({
         spreadsheetId: this.availabilitySheetId,
-        range: 'Sheet1!A:D',
+        range: `${firstSheetName}!A1:D1000`, // Use correct sheet name and more specific range
       });
 
       console.log('Raw availability data:', response.data.values);
@@ -245,6 +283,15 @@ class SheetManager {
     try {
       const sheets = await this.getSheets();
       
+      // Get sheet information to find the actual sheet name
+      const sheetsInfo = await sheets.spreadsheets.get({
+        spreadsheetId: this.availabilitySheetId
+      });
+      
+      // Get the first sheet name
+      const firstSheetName = sheetsInfo.data.sheets[0].properties.title;
+      console.log(`Using sheet name: "${firstSheetName}" for availability updates`);
+      
       const values = [
         [
           availabilityData.date,
@@ -255,7 +302,7 @@ class SheetManager {
 
       await sheets.spreadsheets.values.append({
         spreadsheetId: this.availabilitySheetId,
-        range: 'Availability!A:C',
+        range: `${firstSheetName}!A1:C1`,
         valueInputOption: 'USER_ENTERED',
         resource: { values }
       });
@@ -270,13 +317,23 @@ class SheetManager {
   async setBarberAvailability(dates, times, location) {
     try {
       const sheets = await this.getSheets();
+      
+      // Get sheet information to find the actual sheet name
+      const sheetsInfo = await sheets.spreadsheets.get({
+        spreadsheetId: this.availabilitySheetId
+      });
+      
+      // Get the first sheet name
+      const firstSheetName = sheetsInfo.data.sheets[0].properties.title;
+      console.log(`Using sheet name: "${firstSheetName}" for barber availability setup`);
+      
       const values = dates.flatMap(date => 
         times.map(time => [date, time, location, 'YES'])
       );
 
       await sheets.spreadsheets.values.append({
         spreadsheetId: this.availabilitySheetId,
-        range: 'Availability!A:D',
+        range: `${firstSheetName}!A1:D1`,
         valueInputOption: 'USER_ENTERED',
         resource: { values }
       });

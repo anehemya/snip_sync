@@ -14,7 +14,7 @@ function SuccessPage({ appointmentData }) {
           <p><strong>Location:</strong> {appointmentData.location}</p>
         </div>
         <div className="confirmation-message">
-          <p>A confirmation has been sent to your phone.</p>
+          <p>Your appointment has been successfully booked.</p>
           <p>See you soon!</p>
         </div>
       </div>
